@@ -17,6 +17,8 @@ keras.backend.set_image_dim_ordering('tf')
 CONTENT_IMAGE_PATH = "/path/to/content/image"
 STYLE_IMAGE_PATH   = "/path/to/content/image"
 FINAL_IMAGE_PATH   = "/path/to/content/image"
+PRETRAINED_MODEL   = "vgg16"
+MIN_IMPROVEMENT_THRESHOLD = "0.00001"
 
 content_image = keras.backend.variable(preprocessing_utils.preprocess_image(CONTENT_IMAGE_PATH))
 style_reference_images = []
@@ -24,7 +26,7 @@ for style_path in STYLE_IMAGE_PATH:
     style_images.append(keras.backend.variable(preprocess_image(style_path)))
 
 nb_style_images = len(style_images)
-final_image = Kkeras.backend.placeholder((1, img_width, img_height, 3))
+final_image = keras.backend.placeholder((1, img_width, img_height, 3))
 #END LOADING IMAGES
 
 #CREATE TENSORS
@@ -44,16 +46,12 @@ shape = (nb_tensors, img_width, img_height, 3)
 
 print('Load model.')
 ip = keras.layersInput(tensor=input_tensor, batch_shape=shape)
-pretrained_model = pretrained_model.build()
+pretrained_model = pretrained_model.build(PRETRAINED_MODEL)
 model = keras.model.Model(ip, pretrained_model)
 print('Model loaded.')
 #END LOAD MODEL
 
-# get the symbolic outputs of each "key" layer (we gave them unique names).
-outputs_dict = dict([(layer.name, layer.output) for layer in model.layers])
-shape_dict   = dict([(layer.name, layer.output_shape) for layer in model.layers])
-
-optimizerHandler = optimizerHandler(final_image)
+optimizerHandler = optimizerHandler(final_image, model,... )
 
 # run scipy-based optimization (L-BFGS) over the pixels of the generated image
 # so as to minimize the neural style loss

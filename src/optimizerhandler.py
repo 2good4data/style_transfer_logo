@@ -2,7 +2,7 @@ import keras
 import loss_utils
 
 class OptimizeHandler:
-    def __init__(self, final_image, content_extraction_layers, style_extraction_layers):
+    def __init__(self, final_image, model, content_extraction_layers, style_extraction_layers):
         self.loss_value = None
         self.grads_values = None
 
@@ -10,12 +10,11 @@ class OptimizeHandler:
 		outputs_dict = dict([(layer.name, layer.output) for layer in model.layers])
 		shape_dict   = dict([(layer.name, layer.output_shape) for layer in model.layers])
         # combine these loss functions into a single scalar
-		loss = keras.backend.variable(0.)
-		layer_features = outputs_dict[content_extraction_layers]  # 'conv5_2' or 'conv4_2'
-		content_image_features = layer_features[0, :, :, :]
-		final_features   = layer_features[nb_tensors - 1, :, :, :]
-		loss = loss + content_weight * loss_utils.content_loss(base_image_features,
-                                      combination_features)
+		loss 					= keras.backend.variable(0.)
+		layer_features 			= outputs_dict[content_extraction_layers]  # 'conv5_2' or 'conv4_2'
+		content_image_features  = layer_features[0, :, :, :]
+		final_features   		= layer_features[nb_tensors - 1, :, :, :]
+		loss 					= loss + content_weight * loss_utils.content_loss(content_image_features, final_features)
 
 		channel_index = -1
 
